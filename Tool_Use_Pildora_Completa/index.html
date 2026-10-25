@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tool Use · Píldora IA</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#12192f;
+  --panel2:#18213d;
+  --text:#eef2ff;
+  --muted:#a9b5d6;
+  --line:#2a3558;
+  --accent:#6ea8fe;
+  --accent2:#8b7cf6;
+  --ok:#67d7a4;
+  --warn:#ffc76b;
+  --danger:#ff8a8a;
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(110,168,254,.10), transparent 28%),
+    radial-gradient(circle at 85% 10%, rgba(139,124,246,.10), transparent 28%),
+    var(--bg);
+  color:var(--text);
+}
+a{color:inherit}
+button{font:inherit}
+.shell{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  min-height:100vh;
+}
+aside{
+  position:sticky; top:0; height:100vh;
+  border-right:1px solid var(--line);
+  background:rgba(8,13,29,.86);
+  backdrop-filter:blur(14px);
+  padding:28px 20px;
+}
+.brand{
+  display:flex; gap:12px; align-items:center; margin-bottom:30px;
+}
+.brand-dot{
+  width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 0 26px rgba(110,168,254,.55);
+}
+.brand h1{font-size:18px;margin:0}
+.brand small{display:block;color:var(--muted);margin-top:2px}
+nav{
+  display:flex; flex-direction:column; gap:8px;
+}
+nav button{
+  width:100%; text-align:left; padding:11px 12px;
+  border:1px solid transparent; color:var(--muted);
+  border-radius:12px; background:transparent; cursor:pointer;
+}
+nav button:hover, nav button.active{
+  color:var(--text); background:var(--panel); border-color:var(--line);
+}
+.present{
+  margin-top:22px; padding:14px;
+  border-radius:16px; background:var(--panel);
+  border:1px solid var(--line);
+  color:var(--muted); font-size:13px;
+}
+main{padding:0 0 70px}
+section{
+  min-height:100vh;
+  padding:72px clamp(28px,6vw,92px);
+  border-bottom:1px solid rgba(42,53,88,.55);
+  display:flex; flex-direction:column; justify-content:center;
+}
+.kicker{
+  color:var(--accent); font-size:13px; text-transform:uppercase;
+  letter-spacing:.16em; font-weight:700;
+}
+h2{
+  margin:10px 0 18px;
+  font-size:clamp(34px,5vw,68px);
+  line-height:1.02; letter-spacing:-.03em;
+}
+.lead{
+  font-size:clamp(18px,2vw,25px);
+  line-height:1.5; max-width:920px; color:var(--muted);
+}
+.hero-line{
+  margin-top:34px; padding:20px 24px;
+  border-left:4px solid var(--accent);
+  background:linear-gradient(90deg,rgba(110,168,254,.12),rgba(110,168,254,0));
+  border-radius:0 18px 18px 0; font-size:24px; max-width:950px;
+}
+.grid{
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px; margin-top:30px;
+}
+.card{
+  padding:22px; border:1px solid var(--line); border-radius:var(--radius);
+  background:linear-gradient(180deg,rgba(24,33,61,.98),rgba(18,25,47,.98));
+}
+.card h3{margin:4px 0 10px;font-size:20px}
+.card p{margin:0;color:var(--muted);line-height:1.55}
+.badge{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line); background:#0d1428;
+  border-radius:999px; padding:7px 11px; color:var(--muted); font-size:13px;
+}
+.flow{
+  margin-top:34px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.node{
+  padding:14px 18px; border-radius:16px;
+  border:1px solid var(--line); background:var(--panel);
+  min-width:130px; text-align:center;
+}
+.arrow{color:var(--accent); font-size:24px}
+.code{
+  margin-top:26px; background:#070b16; border:1px solid var(--line);
+  border-radius:18px; padding:22px; font-family:"SFMono-Regular",Consolas,monospace;
+  color:#dbe7ff; overflow:auto; line-height:1.55; font-size:15px;
+}
+.demo-wrap{
+  margin-top:28px; display:grid; grid-template-columns:1.15fr .85fr; gap:20px;
+}
+.terminal{
+  border:1px solid var(--line); border-radius:20px; overflow:hidden;
+  background:#070b16;
+}
+.term-head{
+  padding:12px 16px; border-bottom:1px solid var(--line); color:var(--muted);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.term-body{padding:18px; min-height:380px; font-family:Consolas,monospace}
+.log{margin:0 0 14px; padding:12px 14px; border-radius:12px; background:#0c1326; display:none}
+.log.visible{display:block; animation:fade .28s ease}
+.log.user{border-left:3px solid var(--accent)}
+.log.llm{border-left:3px solid var(--accent2)}
+.log.tool{border-left:3px solid var(--ok)}
+.log.result{border-left:3px solid var(--warn)}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.controls{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line); color:var(--text); background:var(--panel);
+  padding:10px 14px; border-radius:12px; cursor:pointer;
+}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:white}
+.btn:hover{filter:brightness(1.06)}
+.metric{
+  font-size:44px; font-weight:800; letter-spacing:-.04em;
+}
+.compare{
+  width:100%; border-collapse:separate; border-spacing:0; margin-top:26px;
+  overflow:hidden; border-radius:18px; border:1px solid var(--line);
+}
+.compare th,.compare td{
+  padding:16px 18px; text-align:left; border-bottom:1px solid var(--line);
+}
+.compare th{background:var(--panel2)}
+.compare td{background:var(--panel);color:var(--muted)}
+.compare tr:last-child td{border-bottom:none}
+.footer-note{margin-top:26px;color:var(--muted);font-size:14px}
+.progress{
+  position:fixed; left:280px; right:0; bottom:0; height:4px; background:transparent; z-index:10;
+}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.keyboard{
+  position:fixed; right:18px; bottom:16px; z-index:20;
+  padding:8px 11px; border-radius:999px; border:1px solid var(--line);
+  background:rgba(7,11,22,.88); color:var(--muted); font-size:12px;
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  aside{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  nav{display:grid;grid-template-columns:repeat(2,1fr)}
+  .progress{left:0}
+  .grid{grid-template-columns:1fr}
+  .demo-wrap{grid-template-columns:1fr}
+  section{min-height:auto;padding-top:56px;padding-bottom:56px}
+  .keyboard{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside>
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <div><h1>Tool Use</h1><small>Píldora IA · 40–45 min</small></div>
+  </div>
+  <nav id="nav">
+    <button data-target="s1">01 · El cambio</button>
+    <button data-target="s2">02 · El problema</button>
+    <button data-target="s3">03 · Qué es Tool Use</button>
+    <button data-target="s4">04 · Arquitectura</button>
+    <button data-target="s5">05 · Una tool real</button>
+    <button data-target="s6">06 · Function Calling</button>
+    <button data-target="s7">07 · Demo simulada</button>
+    <button data-target="s8">08 · Tipos de tools</button>
+    <button data-target="s9">09 · Tool Use vs RAG</button>
+    <button data-target="s10">10 · Agentes y ReAct</button>
+    <button data-target="s11">11 · Seguridad</button>
+    <button data-target="s12">12 · Caso completo</button>
+    <button data-target="s13">13 · Cierre</button>
+  </nav>
+  <div class="present">
+    <strong>Modo exposición</strong><br>
+    Usa ↑ ↓ o PageUp / PageDown para avanzar por secciones.
+  </div>
+</aside>
+
+<main>
+<section id="s1">
+  <div class="kicker">01 · Punto de partida</div>
+  <h2>¿Qué cambia cuando un LLM deja de limitarse a generar texto?</h2>
+  <p class="lead">Un modelo puede explicar, resumir o razonar. Pero cuando necesita consultar datos actuales, leer una base de datos o ejecutar una acción, necesita algo más: una herramienta externa.</p>
+  <div class="hero-line"><strong>Tool Use</strong> conecta la capacidad de razonamiento del modelo con software que realmente puede hacer cosas.</div>
+</section>
+
+<section id="s2">
+  <div class="kicker">02 · El problema</div>
+  <h2>El LLM no tiene acceso automático al mundo exterior.</h2>
+  <div class="grid">
+    <div class="card"><span class="badge">Datos actuales</span><h3>Información cambiante</h3><p>Tiempo, cotizaciones, disponibilidad, pedidos o incidencias pueden cambiar después del entrenamiento.</p></div>
+    <div class="card"><span class="badge">Sistemas privados</span><h3>Datos internos</h3><p>Una base de datos, CRM o agenda no son visibles para el modelo salvo que una aplicación le dé acceso.</p></div>
+    <div class="card"><span class="badge">Acciones</span><h3>Efectos reales</h3><p>Enviar, guardar, crear, actualizar o ejecutar requiere código y permisos fuera del modelo.</p></div>
+  </div>
+</section>
+
+<section id="s3">
+  <div class="kicker">03 · Definición</div>
+  <h2>Tool Use = el modelo solicita una capacidad externa.</h2>
+  <p class="lead">La aplicación ofrece un conjunto de herramientas bien descritas. El modelo decide cuándo necesita una de ellas y con qué argumentos. El software valida y ejecuta la petición.</p>
+  <div class="hero-line"><strong>El modelo decide qué necesita. El software decide qué puede ejecutar.</strong></div>
+</section>
+
+<section id="s4">
+  <div class="kicker">04 · Arquitectura</div>
+  <h2>Qué ocurre realmente</h2>
+  <div class="flow">
+    <div class="node">Usuario</div><div class="arrow">→</div>
+    <div class="node">LLM</div><div class="arrow">→</div>
+    <div class="node">Tool call</div><div class="arrow">→</div>
+    <div class="node">Orquestador</div><div class="arrow">→</div>
+    <div class="node">Herramienta</div><div class="arrow">→</div>
+    <div class="node">Resultado</div><div class="arrow">→</div>
+    <div class="node">LLM</div>
+  </div>
+  <p class="footer-note">El punto clave es el orquestador: ahí se validan argumentos, permisos, errores y resultados.</p>
+</section>
+
+<section id="s5">
+  <div class="kicker">05 · Una tool real</div>
+  <h2>Una herramienta puede ser una función normal de Python.</h2>
+  <div class="code">def consultar_agenda(fecha):
+    eventos = {
+        "2026-10-25": ["09:30 Mentoría", "18:00 Bootcamp"]
+    }
+    return eventos.get(fecha, [])</div>
+  <p class="lead">La función no sabe nada de LLMs. Solo recibe una entrada y devuelve un resultado. La parte de IA aparece cuando describimos esa función al modelo y permitimos que la solicite.</p>
+</section>
+
+<section id="s6">
+  <div class="kicker">06 · Function Calling</div>
+  <h2>El modelo necesita saber qué herramienta existe y cómo pedirla.</h2>
+  <div class="grid">
+    <div class="card"><h3>Nombre</h3><p><code>consultar_agenda</code></p></div>
+    <div class="card"><h3>Descripción</h3><p>Consulta los eventos de una fecha concreta.</p></div>
+    <div class="card"><h3>Argumentos</h3><p><code>fecha: string</code></p></div>
+  </div>
+  <div class="code">{
+  "name": "consultar_agenda",
+  "arguments": {
+    "fecha": "2026-10-25"
+  }
+}</div>
+</section>
+
+<section id="s7">
+  <div class="kicker">07 · Demo simulada</div>
+  <h2>Dos necesidades, dos herramientas.</h2>
+  <p class="lead">La pregunta combina información de agenda y tiempo. Observa cómo el modelo no “sabe” la respuesta: va obteniendo piezas mediante herramientas.</p>
+  <div class="demo-wrap">
+    <div>
+      <div class="terminal">
+        <div class="term-head"><span>Tool Use trace</span><span id="stepLabel">Paso 0/7</span></div>
+        <div class="term-body" id="terminal">
+          <div class="log user">USER › ¿Qué reuniones tengo mañana y qué tiempo hará?</div>
+          <div class="log llm">LLM › Necesito consultar agenda y meteorología.</div>
+          <div class="log tool">TOOL CALL › get_calendar_events(date="2026-10-25")</div>
+          <div class="log result">TOOL RESULT › 09:30 Mentoría · 18:00 Bootcamp</div>
+          <div class="log tool">TOOL CALL › get_weather(city="Madrid", date="2026-10-25")</div>
+          <div class="log result">TOOL RESULT › 18 °C · lluvia débil</div>
+          <div class="log llm">LLM › Mañana tienes dos reuniones y se espera lluvia débil, con una máxima de 18 °C.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="nextDemo">Avanzar demo</button>
+        <button class="btn" id="resetDemo">Reiniciar</button>
+      </div>
+    </div>
+    <div class="card">
+      <span class="badge">Qué observar</span>
+      <h3>El modelo no ejecuta directamente</h3>
+      <p>Genera una solicitud estructurada. La aplicación recibe la petición, valida los argumentos, ejecuta la función y devuelve el resultado.</p>
+      <br>
+      <p><strong>Resultado:</strong> el LLM puede combinar información procedente de varias tools antes de responder.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s8">
+  <div class="kicker">08 · Ecosistema</div>
+  <h2>¿Qué puede ser una herramienta?</h2>
+  <div class="grid">
+    <div class="card"><h3>Función Python</h3><p>Cálculos, validaciones, lógica interna.</p></div>
+    <div class="card"><h3>API REST</h3><p>Tiempo, mapas, pagos, modelos externos.</p></div>
+    <div class="card"><h3>Base de datos</h3><p>Consultar o modificar información estructurada.</p></div>
+    <div class="card"><h3>Archivos</h3><p>Leer, generar o transformar documentos.</p></div>
+    <div class="card"><h3>Servicios SaaS</h3><p>Correo, calendario, CRM, tickets.</p></div>
+    <div class="card"><h3>Procesos internos</h3><p>Automatizaciones y lógica de negocio.</p></div>
+  </div>
+</section>
+
+<section id="s9">
+  <div class="kicker">09 · Comparativa</div>
+  <h2>Tool Use no es lo mismo que RAG.</h2>
+  <table class="compare">
+    <thead><tr><th>Concepto</th><th>Objetivo</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td>Tool Use</td><td>Usar una capacidad externa</td><td>Consultar una API</td></tr>
+      <tr><td>Function Calling</td><td>Describir y solicitar funciones</td><td>Generar nombre + argumentos</td></tr>
+      <tr><td>RAG</td><td>Recuperar contexto relevante</td><td>Buscar fragmentos en documentos</td></tr>
+      <tr><td>Agente</td><td>Decidir pasos para lograr un objetivo</td><td>Elegir y encadenar tools</td></tr>
+      <tr><td>ReAct</td><td>Alternar razonamiento, acción y observación</td><td>Tool → resultado → siguiente decisión</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="s10">
+  <div class="kicker">10 · Agentes</div>
+  <h2>Tool Use es una capacidad. Un agente es un sistema.</h2>
+  <p class="lead">Un agente puede decidir qué hacer, elegir herramientas, observar resultados y continuar. Tool Use le da la capacidad de interactuar con el entorno.</p>
+  <div class="flow">
+    <div class="node">Objetivo</div><div class="arrow">→</div>
+    <div class="node">Decisión</div><div class="arrow">→</div>
+    <div class="node">Tool</div><div class="arrow">→</div>
+    <div class="node">Observación</div><div class="arrow">→</div>
+    <div class="node">Siguiente paso</div>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="kicker">11 · Seguridad</div>
+  <h2>Dar herramientas a un modelo implica poner límites.</h2>
+  <div class="grid">
+    <div class="card"><h3>Allowlist</h3><p>El modelo solo puede pedir herramientas previamente autorizadas.</p></div>
+    <div class="card"><h3>Validación</h3><p>Comprobar tipos, rangos y contenido antes de ejecutar.</p></div>
+    <div class="card"><h3>Permisos mínimos</h3><p>Cada herramienta debe tener solo el acceso estrictamente necesario.</p></div>
+    <div class="card"><h3>Confirmación humana</h3><p>Acciones sensibles pueden requerir aprobación explícita.</p></div>
+    <div class="card"><h3>Secretos protegidos</h3><p>Las API keys no se exponen al modelo ni al usuario.</p></div>
+    <div class="card"><h3>Logs y observabilidad</h3><p>Registrar qué tool se llamó, con qué argumentos y qué ocurrió.</p></div>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="kicker">12 · Caso completo</div>
+  <h2>Del lenguaje natural a una acción controlada.</h2>
+  <div class="code">Usuario:
+"Busca el pedido 4182 y dime si ya salió."
+
+1. LLM identifica intención
+2. Solicita buscar_pedido(id=4182)
+3. Orquestador valida el ID
+4. La herramienta consulta la BBDD
+5. Resultado: {"estado": "enviado", "fecha": "2026-10-24"}
+6. El resultado vuelve al LLM
+7. LLM responde en lenguaje natural</div>
+  <div class="hero-line">La IA aporta comprensión y lenguaje. El software aporta acceso, reglas y ejecución.</div>
+</section>
+
+<section id="s13">
+  <div class="kicker">13 · Cierre</div>
+  <h2>Tres ideas para llevarte</h2>
+  <div class="grid">
+    <div class="card"><div class="metric">1</div><h3>El LLM no hace magia</h3><p>Solicita una herramienta mediante una interfaz estructurada.</p></div>
+    <div class="card"><div class="metric">2</div><h3>El software mantiene el control</h3><p>Valida, autoriza, ejecuta y devuelve el resultado.</p></div>
+    <div class="card"><div class="metric">3</div><h3>Tool Use habilita sistemas más capaces</h3><p>Es una pieza fundamental en agentes y automatizaciones con IA.</p></div>
+  </div>
+  <div class="hero-line"><strong>El modelo decide qué herramienta necesita. El software la ejecuta de forma controlada.</strong></div>
+  <div class="controls" style="margin-top:28px">
+    <a class="btn primary" href="murdoku/index.html" style="text-decoration:none">Resolver Murdoku</a>
+    <button class="btn" onclick="openColab()">Abrir práctica en Colab</button>
+  </div>
+  <p class="footer-note">Para practicar después de la píldora: primero el reto lógico, después el notebook guiado.</p>
+</section>
+</main>
+</div>
+
+<div class="progress"><span id="progressBar"></span></div>
+<div class="keyboard">↑ ↓ para navegar</div>
+
+<script>
+const sections = [...document.querySelectorAll("main section")];
+const navButtons = [...document.querySelectorAll("nav button")];
+const progress = document.getElementById("progressBar");
+
+function goTo(id){
+  document.getElementById(id).scrollIntoView({behavior:"smooth", block:"start"});
+}
+navButtons.forEach(btn => btn.addEventListener("click",()=>goTo(btn.dataset.target)));
+
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      navButtons.forEach(b=>b.classList.toggle("active", b.dataset.target===entry.target.id));
+      const i = sections.indexOf(entry.target);
+      progress.style.width = ((i+1)/sections.length*100)+"%";
+    }
+  });
+},{threshold:.55});
+sections.forEach(s=>observer.observe(s));
+
+document.addEventListener("keydown", e=>{
+  if(!["ArrowDown","ArrowUp","PageDown","PageUp"].includes(e.key)) return;
+  e.preventDefault();
+  let current = 0;
+  sections.forEach((s,i)=>{
+    const r=s.getBoundingClientRect();
+    if(r.top<=window.innerHeight*.35 && r.bottom>window.innerHeight*.35) current=i;
+  });
+  if(e.key==="ArrowDown"||e.key==="PageDown") current=Math.min(current+1,sections.length-1);
+  else current=Math.max(current-1,0);
+  goTo(sections[current].id);
+});
+
+const logs=[...document.querySelectorAll("#terminal .log")];
+let demoStep=0;
+function renderDemo(){
+  logs.forEach((el,i)=>el.classList.toggle("visible",i<demoStep));
+  document.getElementById("stepLabel").textContent=`Paso ${demoStep}/${logs.length}`;
+}
+document.getElementById("nextDemo").addEventListener("click",()=>{
+  demoStep=Math.min(demoStep+1,logs.length); renderDemo();
+});
+document.getElementById("resetDemo").addEventListener("click",()=>{
+  demoStep=0; renderDemo();
+});
+renderDemo();
+function openColab(){
+  const host = window.location.hostname;
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  if(host.endsWith('.github.io') && parts.length){
+    const user = host.split('.')[0];
+    const repo = parts[0];
+    const url = `https://colab.research.google.com/github/${user}/${repo}/blob/main/colab/Tool_Use_practica_guiada.ipynb`;
+    window.open(url, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = 'colab/Tool_Use_practica_guiada.ipynb';
+    a.download = 'Tool_Use_practica_guiada.ipynb';
+    a.click();
+  }
+}
+
+</script>
+</body>
+</html>
