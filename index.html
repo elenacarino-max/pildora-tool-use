@@ -394,6 +394,11 @@ h2{
     <div class="card"><div class="metric">3</div><h3>Tool Use habilita sistemas más capaces</h3><p>Es una pieza fundamental en agentes y automatizaciones con IA.</p></div>
   </div>
   <div class="hero-line"><strong>El modelo decide qué herramienta necesita. El software la ejecuta de forma controlada.</strong></div>
+  <div class="controls" style="margin-top:28px">
+    <a class="btn primary" href="murdoku/index.html" style="text-decoration:none">Resolver Murdoku</a>
+    <button class="btn" onclick="openColab()">Abrir práctica en Colab</button>
+  </div>
+  <p class="footer-note">Para practicar después de la píldora: primero el reto lógico, después el notebook guiado.</p>
 </section>
 </main>
 </div>
@@ -448,6 +453,22 @@ document.getElementById("resetDemo").addEventListener("click",()=>{
   demoStep=0; renderDemo();
 });
 renderDemo();
+function openColab(){
+  const host = window.location.hostname;
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  if(host.endsWith('.github.io') && parts.length){
+    const user = host.split('.')[0];
+    const repo = parts[0];
+    const url = `https://colab.research.google.com/github/${user}/${repo}/blob/main/colab/Tool_Use_practica_guiada.ipynb`;
+    window.open(url, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = 'colab/Tool_Use_practica_guiada.ipynb';
+    a.download = 'Tool_Use_practica_guiada.ipynb';
+    a.click();
+  }
+}
+
 </script>
 </body>
 </html>
